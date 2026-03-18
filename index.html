@@ -1,34 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registro de Visitas — Salón</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <style>
+    /* --- CSS OMITIDO PARA BREVEDAD (usa tu CSS anterior) --- */
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+  <!-- HEADER, TABS, PANEL REGISTRAR / CONSULTAR, MODAL -->
+  <!-- --- usa tu HTML previo, igual que antes --- -->
+</div>
+
 <script>
-  /* ─────────────────────────────────────────
-     CONFIGURACIÓN
-  ───────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+
   const CONFIG = {
     META_VISITAS: 5,
-    API_REGISTRO:  'https://script.google.com/macros/s/AKfycbzU1NUcQ44_0cSfu21ABi3a2XtuHrY-WAtzxT69DHIumLlUL4wJQ4R3JioZjKA6VgQ/exec',
-    API_CONSULTA:  'https://script.google.com/macros/s/AKfycbzU1NUcQ44_0cSfu21ABi3a2XtuHrY-WAtzxT69DHIumLlUL4wJQ4R3JioZjKA6VgQ/exec',
-    API_NUEVO:     'https://script.google.com/macros/s/AKfycbzU1NUcQ44_0cSfu21ABi3a2XtuHrY-WAtzxT69DHIumLlUL4wJQ4R3JioZjKA6VgQ/exec',
+    API_REGISTRO: 'https://script.google.com/macros/s/AKfycbzU1NUcQ44_0cSfu21ABi3a2XtuHrY-WAtzxT69DHIumLlUL4wJQ4R3JioZjKA6VgQ/exec',
+    API_CONSULTA: 'https://script.google.com/macros/s/AKfycbzU1NUcQ44_0cSfu21ABi3a2XtuHrY-WAtzxT69DHIumLlUL4wJQ4R3JioZjKA6VgQ/exec',
+    API_NUEVO: 'https://script.google.com/macros/s/AKfycbzU1NUcQ44_0cSfu21ABi3a2XtuHrY-WAtzxT69DHIumLlUL4wJQ4R3JioZjKA6VgQ/exec'
   };
 
   let telefonoActual = '';
 
-  (function init() {
-    // Llenar selector de días (1–31)
-    const selDia = document.getElementById('modal-bday-dia');
-    for (let d = 1; d <= 31; d++) {
-      const opt = document.createElement('option');
-      opt.value = String(d).padStart(2, '0');
-      opt.textContent = d;
-      selDia.appendChild(opt);
-    }
-
-    ['tel-registro', 'tel-consulta'].forEach(id => {
-      document.getElementById(id).addEventListener('input', soloDigitos);
-    });
-  })();
-
-  function soloDigitos(e) {
-    e.target.value = e.target.value.replace(/\D/g, '');
+  // --- Inicialización ---
+  const selDia = document.getElementById('modal-bday-dia');
+  for (let d = 1; d <= 31; d++) {
+    const opt = document.createElement('option');
+    opt.value = String(d).padStart(2,'0');
+    opt.textContent = d;
+    selDia.appendChild(opt);
   }
+
+  ['tel-registro','tel-consulta'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', e => e.target.value = e.target.value.replace(/\D/g,''));
+  });
 
   function validarTelefono(tel) {
     return /^\d{10}$/.test(tel);
@@ -36,33 +53,35 @@
 
   function mostrarError(errId, show) {
     const el = document.getElementById(errId);
-    el.classList.toggle('show', show);
+    if(el) el.classList.toggle('show', show);
   }
 
-  function setLoadingBtn(btnId, loading) {
+  function setLoadingBtn(btnId, loading, text='') {
     const btn = document.getElementById(btnId);
-    if (loading) {
+    if(!btn) return;
+    if(loading){
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span> Un momento…';
     } else {
       btn.disabled = false;
+      if(text) btn.textContent = text;
     }
   }
 
-  function buildDots(visitas, meta) {
+  function buildDots(visitas, meta){
     let html = '<div class="dots">';
-    for (let i = 0; i < meta; i++) {
-      html += `<div class="dot${i < visitas ? ' filled' : ''}"></div>`;
+    for(let i=0;i<meta;i++){
+      html += `<div class="dot${i<visitas?' filled':''}"></div>`;
     }
     html += '</div>';
     return html;
   }
 
-  function renderResultadoVisita(visitas, boxId) {
-    const meta    = CONFIG.META_VISITAS;
-    const faltan  = Math.max(meta - visitas, 0);
-    const box     = document.getElementById(boxId);
-
+  function renderResultadoVisita(visitas, boxId){
+    const meta = CONFIG.META_VISITAS;
+    const faltan = Math.max(meta-visitas,0);
+    const box = document.getElementById(boxId);
+    if(!box) return;
     box.className = 'result-box success show';
     box.innerHTML = `
       <p class="headline">¡Listo! Tu visita ha sido registrada 🎉</p>
@@ -73,202 +92,177 @@
         </div>
         ${buildDots(visitas, meta)}
         <p class="progress-sub">
-          Llevas <strong>${visitas} visita${visitas !== 1 ? 's' : ''}</strong>
-          ${faltan > 0
-            ? ` · Te ${faltan === 1 ? 'falta' : 'faltan'} <strong>${faltan}</strong> para tu recompensa`
-            : ' · <strong>¡Ya tienes tu recompensa disponible! 🌸</strong>'}
+          Llevas <strong>${visitas} visita${visitas!==1?'s':''}</strong>
+          ${faltan>0?` · Te ${faltan===1?'falta':'faltan'} <strong>${faltan}</strong> para tu recompensa`:' · <strong>¡Ya tienes tu recompensa disponible! 🌸</strong>'}
         </p>
       </div>
     `;
   }
 
-  function switchTab(tab) {
-    document.querySelectorAll('.tab-btn').forEach((btn, i) => {
-      btn.classList.toggle('active', i === (tab === 'registrar' ? 0 : 1));
-      btn.setAttribute('aria-selected', i === (tab === 'registrar' ? 0 : 1));
+  // --- TABS ---
+  window.switchTab = function(tab){
+    document.querySelectorAll('.tab-btn').forEach((btn,i)=>{
+      btn.classList.toggle('active', i=== (tab==='registrar'?0:1));
+      btn.setAttribute('aria-selected', i=== (tab==='registrar'?0:1));
     });
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('panel-' + tab).classList.add('active');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    const panel = document.getElementById('panel-'+tab);
+    if(panel) panel.classList.add('active');
   }
 
-  /* ─────────────────────────────────────────
-     FUNCIONES GLOBALES PARA BOTONES
-  ───────────────────────────────────────── */
-  window.registrarVisita = async function() {
+  // --- REGISTRAR VISITA ---
+  window.registrarVisita = async function(){
     const tel = document.getElementById('tel-registro').value.trim();
-    if (!validarTelefono(tel)) {
-      mostrarError('err-registro', true);
-      document.getElementById('tel-registro').focus();
+    if(!validarTelefono(tel)){
+      mostrarError('err-registro',true);
       return;
     }
-    mostrarError('err-registro', false);
-    document.getElementById('result-registro').classList.remove('show');
-    setLoadingBtn('btn-registrar', true);
+    mostrarError('err-registro',false);
+    const box = document.getElementById('result-registro');
+    if(box) box.classList.remove('show');
+    setLoadingBtn('btn-registrar',true);
 
-    try {
-      const res = await fetch(CONFIG.API_REGISTRO, {
-        method: 'POST',
-        body: new URLSearchParams({
-          action: 'registrar',
-          telefono: tel
-        })
+    try{
+      const res = await fetch(CONFIG.API_REGISTRO,{
+        method:'POST',
+        body: new URLSearchParams({action:'registrar', telefono:tel})
       });
       const data = await res.json();
-
-      if (data.status === 'ok') {
-        renderResultadoVisita(data.visitas, 'result-registro');
-        document.getElementById('btn-registrar').textContent = 'Registrar visita';
-      } else if (data.status === 'nuevo') {
+      if(data.status==='ok'){
+        renderResultadoVisita(data.visitas,'result-registro');
+      } else if(data.status==='nuevo'){
         telefonoActual = tel;
         abrirModal(tel);
-        document.getElementById('btn-registrar').textContent = 'Registrar visita';
       }
-    } catch (err) {
-      console.error('[registrarVisita]', err);
+    }catch(err){
+      console.error('[registrarVisita]',err);
       const box = document.getElementById('result-registro');
-      box.className = 'result-box error-box show';
-      box.innerHTML = '<p class="headline">Ocurrió un error. Por favor intenta de nuevo.</p>';
-      document.getElementById('btn-registrar').textContent = 'Registrar visita';
+      if(box){
+        box.className='result-box error-box show';
+        box.innerHTML='<p class="headline">Ocurrió un error. Por favor intenta de nuevo.</p>';
+      }
     }
-
-    setLoadingBtn('btn-registrar', false);
-    document.getElementById('btn-registrar').textContent = 'Registrar visita';
+    setLoadingBtn('btn-registrar',false,'Registrar visita');
   }
 
-  window.consultarVisitas = async function() {
+  // --- CONSULTAR VISITAS ---
+  window.consultarVisitas = async function(){
     const tel = document.getElementById('tel-consulta').value.trim();
-    if (!validarTelefono(tel)) {
-      mostrarError('err-consulta', true);
-      document.getElementById('tel-consulta').focus();
+    if(!validarTelefono(tel)){
+      mostrarError('err-consulta',true);
       return;
     }
-    mostrarError('err-consulta', false);
-    document.getElementById('result-consulta').classList.remove('show');
-    setLoadingBtn('btn-consultar', true);
+    mostrarError('err-consulta',false);
+    const box = document.getElementById('result-consulta');
+    if(box) box.classList.remove('show');
+    setLoadingBtn('btn-consultar',true);
 
-    try {
-      const res = await fetch(CONFIG.API_CONSULTA, {
-        method: 'POST',
-        body: new URLSearchParams({
-          action: 'consultar',
-          telefono: tel
-        })
+    try{
+      const res = await fetch(CONFIG.API_CONSULTA,{
+        method:'POST',
+        body: new URLSearchParams({action:'consultar', telefono:tel})
       });
       const data = await res.json();
-
-      const meta   = CONFIG.META_VISITAS;
-      const box    = document.getElementById('result-consulta');
-
-      if (data.status === 'ok') {
+      if(!box) return;
+      const meta = CONFIG.META_VISITAS;
+      if(data.status==='ok'){
         const visitas = data.visitas;
-        const faltan  = Math.max(meta - visitas, 0);
-
-        box.className = 'result-box success show';
-        box.innerHTML = `
+        const faltan = Math.max(meta-visitas,0);
+        box.className='result-box success show';
+        box.innerHTML=`
           <p class="headline">Resumen de visitas</p>
           <div class="stats-grid">
-            <div class="stat-box">
-              <div class="stat-num gold">${visitas}</div>
-              <div class="stat-label">Visitas acumuladas</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-num">${faltan}</div>
-              <div class="stat-label">Para tu recompensa</div>
-            </div>
+            <div class="stat-box"><div class="stat-num gold">${visitas}</div><div class="stat-label">Visitas acumuladas</div></div>
+            <div class="stat-box"><div class="stat-num">${faltan}</div><div class="stat-label">Para tu recompensa</div></div>
           </div>
           <div class="progress-wrap" style="margin-top:18px">
-            <div class="progress-label">
-              <span>Progreso</span>
-              <span>${visitas} / ${meta}</span>
-            </div>
-            ${buildDots(visitas, meta)}
+            <div class="progress-label"><span>Progreso</span><span>${visitas} / ${meta}</span></div>
+            ${buildDots(visitas,meta)}
           </div>
         `;
-      } else if (data.status === 'nuevo') {
-        box.className = 'result-box show';
-        box.style.background = 'var(--gray-soft)';
-        box.style.borderColor = 'var(--nude)';
-        box.innerHTML = `
+      } else if(data.status==='nuevo'){
+        box.className='result-box show';
+        box.style.background='var(--gray-soft)';
+        box.style.borderColor='var(--nude)';
+        box.innerHTML=`
           <p class="headline">Número no encontrado</p>
           <p style="font-size:.84rem;color:var(--gray-text);margin-top:6px">
-            Este número aún no tiene visitas registradas. 
-            Ve a <strong>Registrar visita</strong> para empezar.
+            Este número aún no tiene visitas registradas. Ve a <strong>Registrar visita</strong> para empezar.
           </p>
         `;
       }
-
-    } catch (err) {
-      console.error('[consultarVisitas]', err);
-      const box = document.getElementById('result-consulta');
-      box.className = 'result-box error-box show';
-      box.innerHTML = '<p class="headline">Ocurrió un error. Por favor intenta de nuevo.</p>';
+    }catch(err){
+      console.error('[consultarVisitas]',err);
+      if(box){
+        box.className='result-box error-box show';
+        box.innerHTML='<p class="headline">Ocurrió un error. Por favor intenta de nuevo.</p>';
+      }
     }
-
-    setLoadingBtn('btn-consultar', false);
-    document.getElementById('btn-consultar').textContent = 'Consultar visitas';
+    setLoadingBtn('btn-consultar',false,'Consultar visitas');
   }
 
-  window.guardarNuevoCliente = async function() {
-    const nombre = document.getElementById('modal-nombre').value.trim();
-    const dia    = document.getElementById('modal-bday-dia').value;
-    const mes    = document.getElementById('modal-bday-mes').value;
-    let valido = true;
-
-    if (!nombre) { mostrarError('err-nombre', true); valido = false; } else { mostrarError('err-nombre', false); }
-    if (!dia || !mes) { mostrarError('err-bday', true); valido = false; } else { mostrarError('err-bday', false); }
-    if (!valido) return;
-
-    setLoadingBtn('btn-guardar', true);
-
-    try {
-      const res = await fetch(CONFIG.API_NUEVO, {
-        method: 'POST',
-        body: new URLSearchParams({
-          action: 'nuevo',
-          nombre: nombre,
-          telefono: telefonoActual,
-          dia: dia,
-          mes: mes
-        })
-      });
-      const data = await res.json();
-
-      cerrarModal();
-      renderResultadoVisita(1, 'result-registro');
-
-    } catch (err) {
-      console.error('[guardarNuevoCliente]', err);
-      const box = document.getElementById('result-registro');
-      box.className = 'result-box error-box show';
-      box.innerHTML = '<p class="headline">Ocurrió un error al guardar. Intenta de nuevo.</p>';
-      cerrarModal();
-    }
-
-    document.getElementById('btn-guardar').disabled = false;
-    document.getElementById('btn-guardar').textContent = 'Guardar y registrar visita';
-  }
-
-  /* ─────────────────────────────────────────
-     MODAL
-  ───────────────────────────────────────── */
-  function abrirModal(tel) {
+  // --- MODAL ---
+  window.abrirModal = function(tel){
+    const modal = document.getElementById('modal-overlay');
+    if(!modal) return;
     document.getElementById('modal-tel').value = tel;
     document.getElementById('modal-nombre').value = '';
     document.getElementById('modal-bday-dia').value = '';
     document.getElementById('modal-bday-mes').value = '';
     mostrarError('err-nombre', false);
     mostrarError('err-bday', false);
-    document.getElementById('modal-overlay').classList.add('open');
+    modal.classList.add('open');
     document.getElementById('modal-nombre').focus();
   }
 
-  function cerrarModal() {
-    document.getElementById('modal-overlay').classList.remove('open');
-    telefonoActual = '';
+  window.cerrarModal = function(){
+    const modal = document.getElementById('modal-overlay');
+    if(modal) modal.classList.remove('open');
+    telefonoActual='';
   }
 
-  document.getElementById('modal-overlay').addEventListener('click', function(e) {
-    if (e.target === this) cerrarModal();
+  document.getElementById('modal-overlay').addEventListener('click', e=>{
+    if(e.target===e.currentTarget) cerrarModal();
   });
 
+  window.guardarNuevoCliente = async function(){
+    const nombre = document.getElementById('modal-nombre').value.trim();
+    const dia = document.getElementById('modal-bday-dia').value;
+    const mes = document.getElementById('modal-bday-mes').value;
+    let valido = true;
+    if(!nombre){ mostrarError('err-nombre',true); valido=false; } else mostrarError('err-nombre',false);
+    if(!dia || !mes){ mostrarError('err-bday',true); valido=false; } else mostrarError('err-bday',false);
+    if(!valido) return;
+
+    setLoadingBtn('btn-guardar',true);
+
+    try{
+      const res = await fetch(CONFIG.API_NUEVO,{
+        method:'POST',
+        body: new URLSearchParams({
+          action:'nuevo',
+          nombre,
+          telefono:telefonoActual,
+          dia,
+          mes
+        })
+      });
+      const data = await res.json();
+      cerrarModal();
+      renderResultadoVisita(1,'result-registro');
+    }catch(err){
+      console.error('[guardarNuevoCliente]',err);
+      const box = document.getElementById('result-registro');
+      if(box){
+        box.className='result-box error-box show';
+        box.innerHTML='<p class="headline">Ocurrió un error al guardar. Intenta de nuevo.</p>';
+      }
+      cerrarModal();
+    }
+    setLoadingBtn('btn-guardar',false,'Guardar y registrar visita');
+  }
+
+}); // DOMContentLoaded
 </script>
+</body>
+</html>
