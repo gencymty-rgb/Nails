@@ -824,10 +824,12 @@
          Reemplaza la lógica de simulación por:
 
          const res = await fetch(CONFIG.API_REGISTRO, {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({ telefono: tel })
-         });
+  method: 'POST',
+  body: new URLSearchParams({
+    action: 'registrar',
+    telefono: tel
+  })
+});
          const data = await res.json();
       ────────────────────────────────────────── */
       const res = await fetch(CONFIG.API_REGISTRO, {
@@ -887,18 +889,17 @@ const data = await res.json();
     try {
       /* ── LLAMADA AL BACKEND ──────────────────
          const res = await fetch(CONFIG.API_CONSULTA, {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({ telefono: tel })
-         });
+  method: 'POST',
+  body: new URLSearchParams({
+    action: 'consultar',
+    telefono: tel
+  })
+});
          const data = await res.json();
       ────────────────────────────────────────── */
       const res = await fetch(CONFIG.API_CONSULTA, {
   method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
+  body: new URLSearchParams({
     action: 'consultar',
     telefono: tel
   })
@@ -1013,22 +1014,23 @@ const data = await res.json();
     try {
       /* ── LLAMADA AL BACKEND ──────────────────
          const res = await fetch(CONFIG.API_NUEVO, {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({
-             nombre,
-             telefono: telefonoActual,
-             cumpleaños: { dia, mes }
-           })
-         });
+  method: 'POST',
+  body: new URLSearchParams({
+    action: 'nuevo',
+    nombre: nombre,
+    telefono: telefonoActual,
+    dia: dia,
+    mes: mes
+  })
+});
          const data = await res.json();
       ────────────────────────────────────────── */
       const res = await fetch(CONFIG.API_NUEVO, {
   method: 'POST',
   headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
+    const res = await fetch(CONFIG.API_NUEVO, {
+  method: 'POST',
+  body: new URLSearchParams({
     action: 'nuevo',
     nombre: nombre,
     telefono: telefonoActual,
@@ -1037,7 +1039,7 @@ const data = await res.json();
   })
 });
 
-const data = await res.json();;
+const data = await res.json();
 
       cerrarModal();
       renderResultadoVisita(1, 'result-registro');  // Primera visita del nuevo cliente
