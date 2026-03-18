@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registro de Visitas — Salón</title>
+
+  <!-- Google Fonts: Cormorant Garamond (display) + DM Sans (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <style>
+    /* ===========================
+       CSS VARIABLES & RESET
+    =========================== */
+    :root {
+      --nude:       #e8d5c4;
+      --nude-light: #f5ede6;
+      --nude-mid:   #d4b8a8;
+      --white:      #fdfaf8;
+      --gray-soft:  #f0ebe7;
+      --gray-mid:   #c9bdb5;
+      --gray-text:  #7a6e68;
+      --ink:        #1e1916;
+      --gold:       #b8965a;
+      --gold-light: #d4b07a;
+      --error:      #c0614a;
+      --success:    #6a8f72;
+
+      --radius-sm:  8px;
+      --radius-md:  16px;
+      --radius-lg:  28px;
+      --shadow-sm:  0 2px 12px rgba(30,25,22,.07);
+      --shadow-md:  0 8px 32px rgba(30,25,22,.12);
+      --shadow-lg:  0 24px 64px rgba(30,25,22,.18);
+
+      --transition: .25s cubic-bezier(.4,0,.2,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--white);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===========================
+       BACKGROUND TEXTURE
+    =========================== */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 10% 0%, rgba(232,213,196,.45) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 95% 100%, rgba(184,150,90,.12) 0%, transparent 55%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ===========================
+       LAYOUT
+    =========================== */
+    .page-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+    }
+
+    /* ===========================
+       HEADER / LOGO
+    =========================== */
+    header {
+      text-align: center;
+      padding: 48px 0 36px;
+    }
+
+    .logo-slot {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: 1.5px solid var(--gold);
+      background: var(--white);
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm), inset 0 0 0 6px var(--nude-light);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Placeholder icon */
+    .logo-slot::after {
+      content: '✦';
+      font-size: 28px;
+      color: var(--gold);
+      letter-spacing: 0;
+    }
+
+    /* When user adds real logo image: .logo-slot img { width:100%; height:100%; object-fit:cover; } */
+
+    header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 2rem;
+      letter-spacing: .04em;
+      color: var(--ink);
+      line-height: 1.1;
+    }
+
+    header h1 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    header p.tagline {
+      margin-top: 6px;
+      font-size: .78rem;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--gray-text);
+      font-weight: 400;
+    }
+
+    /* Decorative line */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 28px 0;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--nude-mid), transparent);
+    }
+    .divider span {
+      font-size: .7rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 500;
+    }
+
+    /* ===========================
+       TABS
+    =========================== */
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--gray-soft);
+      border-radius: var(--radius-lg);
+      padding: 4px;
+      margin-bottom: 32px;
+      border: 1px solid var(--nude);
+    }
+
+    .tab-btn {
+      padding: 12px 0;
+      border: none;
+      background: transparent;
+      border-radius: calc(var(--radius-lg) - 4px);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .85rem;
+      font-weight: 500;
+      letter-spacing: .04em;
+      color: var(--gray-text);
+      transition: var(--transition);
+    }
+
+    .tab-btn.active {
+      background: var(--white);
+      color: var(--ink);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ===========================
+       PANELS
+    =========================== */
+    .panel { display: none; animation: fadeUp .3s ease both; }
+    .panel.active { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===========================
+       CARD
+    =========================== */
+    .card {
+      background: rgba(253,250,248,.85);
+      border: 1px solid var(--nude);
+      border-radius: var(--radius-md);
+      padding: 28px 24px;
+      backdrop-filter: blur(8px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 1.35rem;
+      letter-spacing: .02em;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .card-sub {
+      font-size: .78rem;
+      color: var(--gray-text);
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    /* ===========================
+       FORM ELEMENTS
+    =========================== */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    label {
+      font-size: .72rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--gray-text);
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    input[type="date"],
+    select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--nude);
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      color: var(--ink);
+      outline: none;
+      transition: var(--transition);
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(184,150,90,.12);
+    }
+
+    input[readonly] {
+      background: var(--gray-soft);
+      color: var(--gray-text);
+      cursor: not-allowed;
+    }
+
+    .error-msg {
+      font-size: .75rem;
+      color: var(--error);
+      display: none;
+      align-items: center;
+      gap: 5px;
+    }
+    .error-msg.show { display: flex; }
+    .error-msg::before { content: '⚠'; font-size: .85rem; }
+
+    /* Birthday row (day + month selects) */
+    .bday-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* ===========================
+       BUTTONS
+    =========================== */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: .95rem;
+      letter-spacing: .04em;
+      transition: var(--transition);
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: var(--ink);
+      color: var(--white);
+      box-shadow: 0 4px 16px rgba(30,25,22,.18);
+    }
+    .btn-primary:hover {
+      background: #2e2520;
+      box-shadow: 0 6px 22px rgba(30,25,22,.26);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+      color: var(--white);
+      box-shadow: 0 4px 16px rgba(184,150,90,.28);
+    }
+    .btn-gold:hover {
+      box-shadow: 0 6px 24px rgba(184,150,90,.38);
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* Loading spinner inside btn */
+    .btn .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===========================
+       RESULT CARD
+    =========================== */
+    .result-box {
+      display: none;
+      border-radius: var(--radius-md);
+      padding: 22px 20px;
+      margin-top: 20px;
+      animation: fadeUp .3s ease both;
+      border: 1px solid transparent;
+    }
+    .result-box.show { display: block; }
+
+    .result-box.success {
+      background: linear-gradient(135deg, rgba(106,143,114,.08) 0%, rgba(106,143,114,.04) 100%);
+      border-color: rgba(106,143,114,.25);
+    }
+    .result-box.error-box {
+      background: rgba(192,97,74,.06);
+      border-color: rgba(192,97,74,.2);
+    }
+
+    .result-box .headline {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    /* Progress dots */
+    .progress-wrap {
+      margin: 14px 0 8px;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: .72rem;
+      color: var(--gray-text);
+      letter-spacing: .08em;
+      margin-bottom: 8px;
+    }
+    .dots {
+      display: flex;
+      gap: 8px;
+    }
+    .dot {
+      width: 36px;
+      height: 10px;
+      border-radius: 99px;
+      background: var(--nude);
+      transition: background .4s ease, transform .3s ease;
+    }
+    .dot.filled {
+      background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 100%);
+      transform: scaleY(1.15);
+    }
+
+    .progress-sub {
+      font-size: .8rem;
+      color: var(--gray-text);
+      margin-top: 6px;
+    }
+    .progress-sub strong {
+      color: var(--gold);
+      font-weight: 500;
+    }
+
+    /* ===========================
+       MODAL
+    =========================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(30,25,22,.55);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+    }
+    .modal-overlay.open {
+      display: flex;
+      animation: fadeIn .2s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal {
+      background: var(--white);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 32px 24px 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp .3s cubic-bezier(.2,.8,.4,1) both;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(60px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.2;
+      max-width: 80%;
+    }
+
+    .modal-close {
+      background: var(--gray-soft);
+      border: none;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 1rem;
+      color: var(--gray-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: var(--transition);
+    }
+    .modal-close:hover { background: var(--nude); color: var(--ink); }
+
+    .modal-promo {
+      font-size: .82rem;
+      color: var(--gold);
+      letter-spacing: .06em;
+      margin-bottom: 22px;
+      padding: 10px 14px;
+      background: rgba(184,150,90,.08);
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--gold);
+      line-height: 1.5;
+    }
+
+    .modal-divider {
+      height: 1px;
+      background: var(--nude);
+      margin: 18px 0;
+    }
+
+    /* ===========================
+       VISIT STATS (consulta)
+    =========================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .stat-box {
+      background: var(--gray-soft);
+      border-radius: var(--radius-sm);
+      padding: 16px 14px;
+      text-align: center;
+      border: 1px solid var(--nude);
+    }
+    .stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.4rem;
+      font-weight: 300;
+      color: var(--ink);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-num.gold { color: var(--gold); }
+    .stat-label {
+      font-size: .7rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--gray-text);
+    }
+
+    /* ===========================
+       FOOTER
+    =========================== */
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: .68rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--gray-mid);
+    }
+
+    /* ===========================
+       RESPONSIVE TWEAKS
+    =========================== */
+    @media (min-width: 520px) {
+      .modal {
+        border-radius: var(--radius-lg);
+        margin: auto;
+      }
+      .modal-overlay {
+        align-items: center;
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- ========== HEADER ========== -->
+  <header>
+    <!-- Reemplaza el contenido de .logo-slot con tu logo cuando lo tengas -->
+    <div class="logo-slot"></div>
+    <h1>Nail <em>Studio</em></h1>
+    <p class="tagline">Programa de visitas</p>
+  </header>
+
+  <!-- ========== TABS ========== -->
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" role="tab" aria-selected="true"
+      onclick="switchTab('registrar')">Registrar visita</button>
+    <button class="tab-btn" role="tab" aria-selected="false"
+      onclick="switchTab('consultar')">Consultar visitas</button>
+  </div>
+
+  <!-- ========== PANEL: REGISTRAR ========== -->
+  <div class="panel active" id="panel-registrar">
+    <div class="card">
+      <p class="card-title">Nueva visita</p>
+      <p class="card-sub">Ingresa tu número para acumular visitas y canjear recompensas.</p>
+
+      <div class="field">
+        <label for="tel-registro">Número de teléfono</label>
+        <input type="tel" id="tel-registro" maxlength="10"
+          placeholder="10 dígitos" inputmode="numeric" autocomplete="tel"/>
+        <span class="error-msg" id="err-registro">Ingresa un número válido de 10 dígitos</span>
+      </div>
+
+      <button class="btn btn-primary" id="btn-registrar" onclick="registrarVisita()">
+        Registrar visita
+      </button>
+    </div>
+
+    <!-- Resultado registro -->
+    <div class="result-box" id="result-registro"></div>
+  </div>
+
+  <!-- ========== PANEL: CONSULTAR ========== -->
+  <div class="panel" id="panel-consultar">
+    <div class="card">
+      <p class="card-title">Tus visitas</p>
+      <p class="card-sub">Consulta cuántas visitas llevas acumuladas.</p>
+
+      <div class="field">
+        <label for="tel-consulta">Número de teléfono</label>
+        <input type="tel" id="tel-consulta" maxlength="10"
+          placeholder="10 dígitos" inputmode="numeric" autocomplete="tel"/>
+        <span class="error-msg" id="err-consulta">Ingresa un número válido de 10 dígitos</span>
+      </div>
+
+      <button class="btn btn-primary" id="btn-consultar" onclick="consultarVisitas()">
+        Consultar visitas
+      </button>
+    </div>
+
+    <!-- Resultado consulta -->
+    <div class="result-box" id="result-consulta"></div>
+  </div>
+
+  <footer>© 2025 Nail Studio · Todos los derechos reservados</footer>
+</div>
+
+<!-- ========== MODAL: NUEVO CLIENTE ========== -->
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true"
+  aria-labelledby="modal-title-el">
+  <div class="modal">
+    <div class="modal-header">
+      <p class="modal-title" id="modal-title-el">¡Bienvenida al salón!</p>
+      <button class="modal-close" onclick="cerrarModal()" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="modal-promo">
+      🎁 Registra tu cumpleaños y recibe un beneficio especial ese día
+    </div>
+
+    <div class="field">
+      <label for="modal-nombre">Nombre completo *</label>
+      <input type="text" id="modal-nombre" placeholder="Tu nombre"/>
+      <span class="error-msg" id="err-nombre">El nombre es obligatorio</span>
+    </div>
+
+    <div class="field">
+      <label for="modal-tel">Número de teléfono</label>
+      <input type="tel" id="modal-tel" readonly/>
+    </div>
+
+    <div class="modal-divider"></div>
+
+    <div class="field">
+      <label>Fecha de cumpleaños *</label>
+      <div class="bday-row">
+        <select id="modal-bday-dia" aria-label="Día de cumpleaños">
+          <option value="">Día</option>
+        </select>
+        <select id="modal-bday-mes" aria-label="Mes de cumpleaños">
+          <option value="">Mes</option>
+          <option value="01">Enero</option>
+          <option value="02">Febrero</option>
+          <option value="03">Marzo</option>
+          <option value="04">Abril</option>
+          <option value="05">Mayo</option>
+          <option value="06">Junio</option>
+          <option value="07">Julio</option>
+          <option value="08">Agosto</option>
+          <option value="09">Septiembre</option>
+          <option value="10">Octubre</option>
+          <option value="11">Noviembre</option>
+          <option value="12">Diciembre</option>
+        </select>
+      </div>
+      <span class="error-msg" id="err-bday">Selecciona tu día y mes de cumpleaños</span>
+    </div>
+
+    <button class="btn btn-gold" id="btn-guardar" onclick="guardarNuevoCliente()">
+      Guardar y registrar visita
+    </button>
+  </div>
+</div>
+
+<!-- ========== JAVASCRIPT ========== -->
+<script>
+  /* ─────────────────────────────────────────
+     CONFIGURACIÓN
+  ───────────────────────────────────────── */
+  const CONFIG = {
+    META_VISITAS: 5,                           // Visitas requeridas para recompensa
+    API_REGISTRO:  'https://script.google.com/macros/s/AKfycbzU1NUcQ44_0cSfu21ABi3a2XtuHrY-WAtzxT69DHIumLlUL4wJQ4R3JioZjKA6VgQ/exec',  // ← Reemplaza con tu endpoint
+    API_CONSULTA:  'https://script.google.com/macros/s/AKfycbzU1NUcQ44_0cSfu21ABi3a2XtuHrY-WAtzxT69DHIumLlUL4wJQ4R3JioZjKA6VgQ/exec',  // ← Reemplaza con tu endpoint
+    API_NUEVO:     'https://script.google.com/macros/s/AKfycbzU1NUcQ44_0cSfu21ABi3a2XtuHrY-WAtzxT69DHIumLlUL4wJQ4R3JioZjKA6VgQ/exec',     // ← Reemplaza con tu endpoint
+  };
+
+  /* ─────────────────────────────────────────
+     ESTADO INTERNO
+  ───────────────────────────────────────── */
+  let telefonoActual = '';  // Teléfono en uso al abrir el modal
+
+  /* ─────────────────────────────────────────
+     INICIALIZACIÓN
+  ───────────────────────────────────────── */
+  (function init() {
+    // Llenar selector de días (1–31)
+    const selDia = document.getElementById('modal-bday-dia');
+    for (let d = 1; d <= 31; d++) {
+      const opt = document.createElement('option');
+      opt.value = String(d).padStart(2, '0');
+      opt.textContent = d;
+      selDia.appendChild(opt);
+    }
+
+    // Solo permitir dígitos en inputs de teléfono
+    ['tel-registro', 'tel-consulta'].forEach(id => {
+      document.getElementById(id).addEventListener('input', soloDigitos);
+    });
+  })();
+
+  /* ─────────────────────────────────────────
+     UTILIDADES
+  ───────────────────────────────────────── */
+
+  /** Filtra caracteres no numéricos en tiempo real */
+  function soloDigitos(e) {
+    e.target.value = e.target.value.replace(/\D/g, '');
+  }
+
+  /** Valida que el teléfono sea exactamente 10 dígitos */
+  function validarTelefono(tel) {
+    return /^\d{10}$/.test(tel);
+  }
+
+  /** Muestra / oculta mensaje de error bajo un input */
+  function mostrarError(errId, show) {
+    const el = document.getElementById(errId);
+    el.classList.toggle('show', show);
+  }
+
+  /** Pone spinner y deshabilita un botón */
+  function setLoadingBtn(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    if (loading) {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Un momento…';
+    } else {
+      btn.disabled = false;
+    }
+  }
+
+  /** Renderiza las bolitas de progreso */
+  function buildDots(visitas, meta) {
+    let html = '<div class="dots">';
+    for (let i = 0; i < meta; i++) {
+      html += `<div class="dot${i < visitas ? ' filled' : ''}"></div>`;
+    }
+    html += '</div>';
+    return html;
+  }
+
+  /** Renderiza el bloque de resultado de visita */
+  function renderResultadoVisita(visitas, boxId) {
+    const meta    = CONFIG.META_VISITAS;
+    const faltan  = Math.max(meta - visitas, 0);
+    const box     = document.getElementById(boxId);
+
+    box.className = 'result-box success show';
+    box.innerHTML = `
+      <p class="headline">¡Listo! Tu visita ha sido registrada 🎉</p>
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Tu progreso</span>
+          <span>${visitas} / ${meta}</span>
+        </div>
+        ${buildDots(visitas, meta)}
+        <p class="progress-sub">
+          Llevas <strong>${visitas} visita${visitas !== 1 ? 's' : ''}</strong>
+          ${faltan > 0
+            ? ` · Te ${faltan === 1 ? 'falta' : 'faltan'} <strong>${faltan}</strong> para tu recompensa`
+            : ' · <strong>¡Ya tienes tu recompensa disponible! 🌸</strong>'}
+        </p>
+      </div>
+    `;
+  }
+
+  /* ─────────────────────────────────────────
+     TABS
+  ───────────────────────────────────────── */
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', i === (tab === 'registrar' ? 0 : 1));
+      btn.setAttribute('aria-selected', i === (tab === 'registrar' ? 0 : 1));
+    });
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+
+  /* ─────────────────────────────────────────
+     FUNCIÓN: REGISTRAR VISITA
+  ───────────────────────────────────────── */
+  async function registrarVisita() {
+    const tel = document.getElementById('tel-registro').value.trim();
+
+    // Validación
+    if (!validarTelefono(tel)) {
+      mostrarError('err-registro', true);
+      document.getElementById('tel-registro').focus();
+      return;
+    }
+    mostrarError('err-registro', false);
+
+    // Ocultar resultado previo
+    document.getElementById('result-registro').classList.remove('show');
+
+    setLoadingBtn('btn-registrar', true);
+
+    try {
+      /* ── LLAMADA AL BACKEND ──────────────────
+         Reemplaza la lógica de simulación por:
+
+         const res = await fetch(CONFIG.API_REGISTRO, {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ telefono: tel })
+         });
+         const data = await res.json();
+      ────────────────────────────────────────── */
+      const res = await fetch(CONFIG.API_REGISTRO, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    action: 'registrar',
+    telefono: tel
+  })
+});
+
+const data = await res.json();
+
+      if (data.status === 'ok') {
+        renderResultadoVisita(data.visitas, 'result-registro');
+        // Resetear botón con texto correcto
+        document.getElementById('btn-registrar').textContent = 'Registrar visita';
+
+      } else if (data.status === 'nuevo') {
+        // Abrir modal para registrar nuevo cliente
+        telefonoActual = tel;
+        abrirModal(tel);
+        document.getElementById('btn-registrar').textContent = 'Registrar visita';
+      }
+
+    } catch (err) {
+      console.error('[registrarVisita]', err);
+      const box = document.getElementById('result-registro');
+      box.className = 'result-box error-box show';
+      box.innerHTML = '<p class="headline">Ocurrió un error. Por favor intenta de nuevo.</p>';
+      document.getElementById('btn-registrar').textContent = 'Registrar visita';
+    }
+
+    setLoadingBtn('btn-registrar', false);
+    document.getElementById('btn-registrar').textContent = 'Registrar visita';
+  }
+
+  /* ─────────────────────────────────────────
+     FUNCIÓN: CONSULTAR VISITAS
+  ───────────────────────────────────────── */
+  async function consultarVisitas() {
+    const tel = document.getElementById('tel-consulta').value.trim();
+
+    // Validación
+    if (!validarTelefono(tel)) {
+      mostrarError('err-consulta', true);
+      document.getElementById('tel-consulta').focus();
+      return;
+    }
+    mostrarError('err-consulta', false);
+
+    document.getElementById('result-consulta').classList.remove('show');
+    setLoadingBtn('btn-consultar', true);
+
+    try {
+      /* ── LLAMADA AL BACKEND ──────────────────
+         const res = await fetch(CONFIG.API_CONSULTA, {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ telefono: tel })
+         });
+         const data = await res.json();
+      ────────────────────────────────────────── */
+      const res = await fetch(CONFIG.API_CONSULTA, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    action: 'consultar',
+    telefono: tel
+  })
+});
+
+const data = await res.json();
+
+      const meta   = CONFIG.META_VISITAS;
+      const box    = document.getElementById('result-consulta');
+
+      if (data.status === 'ok') {
+        const visitas = data.visitas;
+        const faltan  = Math.max(meta - visitas, 0);
+
+        box.className = 'result-box success show';
+        box.innerHTML = `
+          <p class="headline">Resumen de visitas</p>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-num gold">${visitas}</div>
+              <div class="stat-label">Visitas acumuladas</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num">${faltan}</div>
+              <div class="stat-label">Para tu recompensa</div>
+            </div>
+          </div>
+          <div class="progress-wrap" style="margin-top:18px">
+            <div class="progress-label">
+              <span>Progreso</span>
+              <span>${visitas} / ${meta}</span>
+            </div>
+            ${buildDots(visitas, meta)}
+          </div>
+        `;
+
+      } else if (data.status === 'nuevo') {
+        box.className = 'result-box show';
+        box.style.background = 'var(--gray-soft)';
+        box.style.borderColor = 'var(--nude)';
+        box.innerHTML = `
+          <p class="headline">Número no encontrado</p>
+          <p style="font-size:.84rem;color:var(--gray-text);margin-top:6px">
+            Este número aún no tiene visitas registradas. 
+            Ve a <strong>Registrar visita</strong> para empezar.
+          </p>
+        `;
+      }
+
+    } catch (err) {
+      console.error('[consultarVisitas]', err);
+      const box = document.getElementById('result-consulta');
+      box.className = 'result-box error-box show';
+      box.innerHTML = '<p class="headline">Ocurrió un error. Por favor intenta de nuevo.</p>';
+    }
+
+    setLoadingBtn('btn-consultar', false);
+    document.getElementById('btn-consultar').textContent = 'Consultar visitas';
+  }
+
+  /* ─────────────────────────────────────────
+     MODAL — NUEVO CLIENTE
+  ───────────────────────────────────────── */
+
+  function abrirModal(tel) {
+    document.getElementById('modal-tel').value = tel;
+    document.getElementById('modal-nombre').value = '';
+    document.getElementById('modal-bday-dia').value = '';
+    document.getElementById('modal-bday-mes').value = '';
+    mostrarError('err-nombre', false);
+    mostrarError('err-bday', false);
+
+    document.getElementById('modal-overlay').classList.add('open');
+    document.getElementById('modal-nombre').focus();
+  }
+
+  function cerrarModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    telefonoActual = '';
+  }
+
+  // Cerrar modal al hacer clic fuera
+  document.getElementById('modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) cerrarModal();
+  });
+
+  async function guardarNuevoCliente() {
+    const nombre = document.getElementById('modal-nombre').value.trim();
+    const dia    = document.getElementById('modal-bday-dia').value;
+    const mes    = document.getElementById('modal-bday-mes').value;
+
+    let valido = true;
+
+    if (!nombre) {
+      mostrarError('err-nombre', true);
+      valido = false;
+    } else {
+      mostrarError('err-nombre', false);
+    }
+
+    if (!dia || !mes) {
+      mostrarError('err-bday', true);
+      valido = false;
+    } else {
+      mostrarError('err-bday', false);
+    }
+
+    if (!valido) return;
+
+    setLoadingBtn('btn-guardar', true);
+
+    try {
+      /* ── LLAMADA AL BACKEND ──────────────────
+         const res = await fetch(CONFIG.API_NUEVO, {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({
+             nombre,
+             telefono: telefonoActual,
+             cumpleaños: { dia, mes }
+           })
+         });
+         const data = await res.json();
+      ────────────────────────────────────────── */
+      const res = await fetch(CONFIG.API_NUEVO, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    action: 'nuevo',
+    nombre: nombre,
+    telefono: telefonoActual,
+    dia: dia,
+    mes: mes
+  })
+});
+
+const data = await res.json();;
+
+      cerrarModal();
+      renderResultadoVisita(1, 'result-registro');  // Primera visita del nuevo cliente
+
+    } catch (err) {
+      console.error('[guardarNuevoCliente]', err);
+      const box = document.getElementById('result-registro');
+      box.className = 'result-box error-box show';
+      box.innerHTML = '<p class="headline">Ocurrió un error al guardar. Intenta de nuevo.</p>';
+      cerrarModal();
+    }
+
+    document.getElementById('btn-guardar').disabled = false;
+    document.getElementById('btn-guardar').textContent = 'Guardar y registrar visita';
+  }
+
+</script>
+</body>
+</html>
