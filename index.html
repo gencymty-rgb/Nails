@@ -838,10 +838,11 @@
         box.className = 'result-box show';
         box.style.background = 'var(--gray-soft)';
         box.style.borderColor = 'var(--nude)';
-        box.innerHTML = `
-          <p class="headline">Ya registraste tu visita hoy 😊</p>
+       box.innerHTML = `
+          <p class="headline">Tu visita ya fue registrada hoy 📋</p>
           <p style="font-size:.84rem;color:var(--gray-text);margin-top:6px">
-            Solo se permite una visita por día. ¡Nos vemos pronto!
+            Solo puedes registrar una visita por día. Recuerda que cada visita 
+            cuenta para tu recompensa. ¡Te esperamos pronto! 🌸
           </p>
         `;
       }
@@ -853,8 +854,10 @@
       box.innerHTML = '<p class="headline">Ocurrió un error. Por favor intenta de nuevo.</p>';
     }
 
-    setLoadingBtn('btn-registrar', false);
+setLoadingBtn('btn-registrar', false);
     document.getElementById('btn-registrar').textContent = 'Registrar visita';
+    document.getElementById('tel-registro').value = ''; // Limpiar teléfono
+  
   }
   
 
