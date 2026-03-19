@@ -635,7 +635,18 @@
         } else if (data.status === 'nuevo') {
           telefonoActual = tel;
           abrirModal(tel);
+} else if (data.status === 'recompensa') {
+          var box = document.getElementById('result-registro');
+          box.className = 'result-box success show';
+          box.style.background = 'linear-gradient(135deg, rgba(184,150,90,.12) 0%, rgba(184,150,90,.06) 100%)';
+          box.style.borderColor = 'rgba(184,150,90,.4)';
+          box.innerHTML =
+            '<p class="headline">Completaste tus 5 visitas!</p>' +
+            '<p style="font-size:.84rem;color:var(--gray-text);margin-top:6px">' +
+            'Muestra este mensaje en recepcion para reclamar tu recompensa. Tu contador ha sido reiniciado.' +
+            '</p>';
 
+      
         } else if (data.status === 'ya_registrado') {
           var box = document.getElementById('result-registro');
           box.className = 'result-box show';
