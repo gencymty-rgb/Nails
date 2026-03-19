@@ -820,7 +820,7 @@
 
     try {
      const params = new URLSearchParams({ accion: 'registrar', telefono: tel });
-      const res = await fetch(CONFIG.API_URL, { method: 'POST', body: params });
+      const res = await fetch(CONFIG.API_URL, { method: 'POST', body: params, redirect: 'follow' });
       const data = await res.json();
 
       if (data.status === 'ok') {
@@ -866,7 +866,7 @@
 
     try {
   const params = new URLSearchParams({ accion: 'consultar', telefono: tel });
-      const res = await fetch(CONFIG.API_URL, { method: 'POST', body: params });
+      const res = await fetch(CONFIG.API_URL, { method: 'POST', body: params, redirect: 'follow' });
       const data = await res.json();
 
       const meta   = CONFIG.META_VISITAS;
@@ -993,7 +993,7 @@
         dia:      dia,
         mes:      mes
       });
-      const res  = await fetch(CONFIG.API_URL, { method: 'POST', body: params });
+      const res = await fetch(CONFIG.API_URL, { method: 'POST', body: params, redirect: 'follow' });
       const data = await res.json();
 
       cerrarModal();
