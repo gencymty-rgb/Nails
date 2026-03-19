@@ -802,6 +802,9 @@
   /* ─────────────────────────────────────────
      FUNCIÓN: REGISTRAR VISITA
   ───────────────────────────────────────── */
+  /* ─────────────────────────────────────────
+     FUNCIÓN: REGISTRAR VISITA
+  ───────────────────────────────────────── */
   async function registrarVisita() {
     const tel = document.getElementById('tel-registro').value.trim();
 
@@ -819,20 +822,28 @@
     setLoadingBtn('btn-registrar', true);
 
     try {
-     const params = new URLSearchParams({ accion: 'registrar', telefono: tel });
+      const params = new URLSearchParams({ accion: 'registrar', telefono: tel });
       const res = await fetch(CONFIG.API_URL, { method: 'POST', body: params, redirect: 'follow' });
       const data = await res.json();
 
       if (data.status === 'ok') {
         renderResultadoVisita(data.visitas, 'result-registro');
-        // Resetear botón con texto correcto
-        document.getElementById('btn-registrar').textContent = 'Registrar visita';
 
       } else if (data.status === 'nuevo') {
-        // Abrir modal para registrar nuevo cliente
         telefonoActual = tel;
         abrirModal(tel);
-        document.getElementById('btn-registrar').textContent = 'Registrar visita';
+
+      } else if (data.status === 'ya_registrado') {
+        const box = document.getElementById('result-registro');
+        box.className = 'result-box show';
+        box.style.background = 'var(--gray-soft)';
+        box.style.borderColor = 'var(--nude)';
+        box.innerHTML = `
+          <p class="headline">Ya registraste tu visita hoy 😊</p>
+          <p style="font-size:.84rem;color:var(--gray-text);margin-top:6px">
+            Solo se permite una visita por día. ¡Nos vemos pronto!
+          </p>
+        `;
       }
 
     } catch (err) {
@@ -840,12 +851,12 @@
       const box = document.getElementById('result-registro');
       box.className = 'result-box error-box show';
       box.innerHTML = '<p class="headline">Ocurrió un error. Por favor intenta de nuevo.</p>';
-      document.getElementById('btn-registrar').textContent = 'Registrar visita';
     }
 
     setLoadingBtn('btn-registrar', false);
     document.getElementById('btn-registrar').textContent = 'Registrar visita';
   }
+  
 
   /* ─────────────────────────────────────────
      FUNCIÓN: CONSULTAR VISITAS
@@ -974,17 +985,7 @@
     setLoadingBtn('btn-guardar', true);
 
     try {
-      /* ── LLAMADA AL BACKEND ──────────────────
-         const res = await fetch(CONFIG.API_NUEVO, {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({
-             nombre,
-             telefono: telefonoActual,
-             cumpleaños: { dia, mes }
-           })
-         });
-         const data = await res.json();
+    
       ────────────────────────────────────────── */
       const params = new URLSearchParams({
         accion:   'nuevo',
